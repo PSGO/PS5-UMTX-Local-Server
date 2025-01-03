@@ -1,6 +1,6 @@
 Used for PS5 to cache from local Windows PC.
 
-Synchronize updates from https://github.com/idlesauce/PS5-UMTX-Jailbreak.
+Synchronize updates from https://github.com/idlesauce/PS5-UMTX-Jailbreak
 
 For PS5 FW 1.xx - 5.xx.
 
