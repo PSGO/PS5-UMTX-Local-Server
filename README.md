@@ -1,4 +1,4 @@
-Used for PS5 to cache from local Windows PC.
+Used for PS5 to cache from local Windows PC, no need to install PS5 browser, enter from the user's guide
 
 Synchronize updates from https://github.com/idlesauce/PS5-UMTX-Jailbreak
 
