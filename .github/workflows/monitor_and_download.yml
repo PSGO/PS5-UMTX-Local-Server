@@ -26,14 +26,24 @@ jobs:
           echo "Latest commit hash: $latest_commit"
           echo $latest_commit > log/latest_commit.txt
 
-      # Step 4: Ensure previous_commit.txt exists and initialize if necessary
+      # Step 4: Get the latest commit message from GitHub
+      - name: Get the latest commit message from GitHub
+        id: get_commit_message
+        run: |
+          commit_message=$(curl -s https://api.github.com/repos/idlesauce/PS5-UMTX-Jailbreak/commits/main | jq -r '.commit.message')
+          commit_url="https://github.com/idlesauce/PS5-UMTX-Jailbreak/commit/$(cat log/latest_commit.txt)"
+          echo "Commit message: $commit_message"
+          echo "commit_message=$commit_message" >> $GITHUB_ENV
+          echo "commit_url=$commit_url" >> $GITHUB_ENV
+
+      # Step 5: Ensure previous_commit.txt exists and initialize if necessary
       - name: Ensure previous_commit.txt exists
         run: |
           if [ ! -f log/previous_commit.txt ]; then
             echo "no_previous_commit" > log/previous_commit.txt
           fi
 
-      # Step 5: Compare latest commit with previous commit and set skip variable
+      # Step 6: Compare latest commit with previous commit and set skip variable
       - name: Compare with previous commit and set skip variable
         id: check_commit
         run: |
@@ -45,71 +55,76 @@ jobs:
             echo "skip=false" >> $GITHUB_ENV
           fi
 
-      # Step 6: Download repository archive if skip is not true
+      # Step 7: Download repository archive if skip is not true
       - name: Download repository archive
         if: ${{ env.skip != 'true' }}
         run: curl -L https://github.com/idlesauce/PS5-UMTX-Jailbreak/archive/refs/heads/main.zip -o repo.zip
 
-      # Step 7: Unzip repository archive
+      # Step 8: Unzip repository archive
       - name: Unzip repository archive
         if: ${{ env.skip != 'true' }}
         run: unzip -q repo.zip
 
-      # Step 8: Modify appcache_manifest_generator.py
+      # Step 9: Modify appcache_manifest_generator.py
       - name: Modify appcache_manifest_generator.py
         if: ${{ env.skip != 'true' }}
         run: |
           sed -i '/user_input = input(f"Found .index.html./,/exit(1)/d' PS5-UMTX-Jailbreak-main/appcache_manifest_generator.py
 
-      # Step 9: Run appcache_manifest_generator.py
+      # Step 10: Run appcache_manifest_generator.py
       - name: Run appcache_manifest_generator.py
         if: ${{ env.skip != 'true' }}
         run: |
           cd PS5-UMTX-Jailbreak-main
           python3 appcache_manifest_generator.py
 
-      # Step 10: Move ps5 folder contents to target directory
+      # Step 11: Move ps5 folder contents to target directory
       - name: Move ps5 folder contents to target directory
         if: ${{ env.skip != 'true' }}
         run: |
           mkdir -p files/exploit/host/PSGO/
           mv PS5-UMTX-Jailbreak-main/document/en/ps5/* files/exploit/host/PSGO/
 
-      # Step 11: Delete repo.zip and PS5-UMTX-Jailbreak-main
+      # Step 12: Delete repo.zip and PS5-UMTX-Jailbreak-main
       - name: Delete repo.zip and PS5-UMTX-Jailbreak-main
         if: ${{ env.skip != 'true' }}
         run: rm -rf repo.zip PS5-UMTX-Jailbreak-main
 
-      # Step 12: Create compressed package
+      # Step 13: Create compressed package
       - name: Create compressed package
         if: ${{ env.skip != 'true' }}
         run: zip -r PS5_UMTX-Windows_Local_Server-Offline_Cache.zip ./*
 
-      # Step 13: Release dynamic version
+      # Step 14: Release dynamic version
       - name: Release dynamic version
         if: ${{ env.skip != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create PS5-UMTX-1.0${{ github.run_number }} PS5_UMTX-Windows_Local_Server-Offline_Cache.zip --target ${{ github.sha }} -t "PS5-UMTX-1.0${{ github.run_number }}" -n "Release for commit ${{ github.sha }}"
+          gh release create PS5-UMTX-1.0${{ github.run_number }} PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
+          --target ${{ github.sha }} \
+          -t "PS5-UMTX-1.0${{ github.run_number }}" \
+          -n "${{ env.commit_message }}  ${{ env.commit_url }}"
 
-      # Step 14: Delete old latest release (if exists)
+      # Step 15: Delete old latest release (if exists)
       - name: Delete old latest release
         if: ${{ env.skip != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete latest --yes || true
+        run: gh release delete latest --yes || true
 
-      # Step 15: Create latest fixed release
+      # Step 16: Create latest fixed release
       - name: Create latest fixed release
         if: ${{ env.skip != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create latest PS5_UMTX-Windows_Local_Server-Offline_Cache.zip --target ${{ github.sha }} -t "PS5-UMTX-1.0${{ github.run_number }}" -n "Release for commit ${{ github.sha }}"
+          gh release create latest PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
+          --target ${{ github.sha }} \
+          -t "PS5-UMTX-1.0${{ github.run_number }}" \
+          -n "${{ env.commit_message }}  ${{ env.commit_url }}"
 
-      # Step 16: Update commit hash log
+      # Step 17: Update commit hash log
       - name: Commit and push commit info to log directory
         if: ${{ env.skip != 'true' }}
         run: |
