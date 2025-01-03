@@ -1,6 +1,6 @@
-Used to establish local DNS services in a local area network.
+Used for PS5 to cache directly from local Windows PC.
 
-Synchronize updates https://github.com/idlesauce/PS5-UMTX-Jailbreak.
+Synchronize updates from https://github.com/idlesauce/PS5-UMTX-Jailbreak.
 
 For PS5 FW 1.xx - 5.xx.
 
