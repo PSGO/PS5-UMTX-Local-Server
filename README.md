@@ -1,6 +1,6 @@
 Used to establish local DNS services in a local area network.
 
-Synchronize updates https://github.com/idlesauce/PS5-UMTX-Jailbreak.
+Synchronize updates from https://github.com/idlesauce/PS5-UMTX-Jailbreak
 
 For PS5 FW 1.xx - 5.xx.
 
