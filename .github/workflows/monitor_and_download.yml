@@ -90,10 +90,16 @@ jobs:
         if: ${{ env.skip != 'true' }}
         run: rm -rf repo.zip PS5-UMTX-Jailbreak-main
 
-      # Step 13: Create compressed package
+      # Step 13: Create compressed package with dynamic version suffix
       - name: Create compressed package
         if: ${{ env.skip != 'true' }}
-        run: zip -r PS5_UMTX-Windows_Local_Server-Offline_Cache.zip ./*
+        run: |
+          if [[ "${{ github.run_number }}" != "" ]]; then
+            zip_name="PS5_UMTX-Windows_Local_Server-Offline_Cache-${{ github.run_number }}.zip"
+          else
+            zip_name="PS5_UMTX-Windows_Local_Server-Offline_Cache.zip"
+          fi
+          zip -r $zip_name ./*
 
       # Step 14: Release dynamic version
       - name: Release dynamic version
@@ -101,10 +107,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create PS5-UMTX-1.0${{ github.run_number }} PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
-          --target ${{ github.sha }} \
-          -t "PS5-UMTX-1.0${{ github.run_number }}" \
-          -n "${{ env.commit_message }}  ${{ env.commit_url }}"
+          if [[ "${{ github.run_number }}" != "" ]]; then
+            gh release create PS5-UMTX-1.0${{ github.run_number }} PS5_UMTX-Windows_Local_Server-Offline_Cache-${{ github.run_number }}.zip \
+            --target ${{ github.sha }} \
+            -t "PS5-UMTX-1.0${{ github.run_number }}" \
+            -n "${{ env.commit_message }}  ${{ env.commit_url }}"
+          else
+            gh release create PS5-UMTX-1.0 PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
+            --target ${{ github.sha }} \
+            -t "PS5-UMTX-1.0" \
+            -n "${{ env.commit_message }}  ${{ env.commit_url }}"
+          fi
 
       # Step 15: Delete old latest release (if exists)
       - name: Delete old latest release
@@ -113,12 +126,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release delete latest --yes || true
 
-      # Step 16: Create latest fixed release
+      # Step 16: Create latest fixed release (without version number in zip file, but version in title)
       - name: Create latest fixed release
         if: ${{ env.skip != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # For fixed version, rename the zip file to remove version number suffix
+          if [[ "${{ github.run_number }}" != "" ]]; then
+            cp PS5_UMTX-Windows_Local_Server-Offline_Cache-${{ github.run_number }}.zip PS5_UMTX-Windows_Local_Server-Offline_Cache.zip
+          fi
           gh release create latest PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
           --target ${{ github.sha }} \
           -t "PS5-UMTX-1.0${{ github.run_number }}" \
