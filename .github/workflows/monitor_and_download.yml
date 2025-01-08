@@ -114,6 +114,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          if [[ "${{ github.run_number }}" != "" ]]; then
+            cp PS5_UMTX-Windows_Local_Server-Offline_Cache-${{ github.run_number }}.zip PS5_UMTX-Windows_Local_Server-Offline_Cache.zip
+          fi
           gh release create latest PS5_UMTX-Windows_Local_Server-Offline_Cache.zip \
           --target ${{ github.sha }} \
           -t "PS5-UMTX-1.0${{ github.run_number }}" \
