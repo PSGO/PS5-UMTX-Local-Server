@@ -65,16 +65,12 @@ jobs:
         if: ${{ env.skip != 'true' }}
         run: unzip -q repo.zip
 
-      # Step 9: Modify appcache_manifest_generator.py
+      # Step 9: Copy cache.py
       - name: Modify appcache_manifest_generator.py
         if: ${{ env.skip != 'true' }}
         run: |
-          if grep -qE 'user_input = input\(f"Found .index.html.' PS5-UMTX-Jailbreak-main/appcache_manifest_generator.py; then
-            sed -i '/user_input = input(f"Found .index.html./,/exit(1)/d' PS5-UMTX-Jailbreak-main/appcache_manifest_generator.py
-          else
-            echo "No match found. Exiting workflow."
-            exit 1
-          fi
+          # 复制 cache.py 到 PS5-UMTX-Jailbreak-main 目录
+          cp cache.py PS5-UMTX-Jailbreak-main/
 
       # Step 10: Run appcache_manifest_generator.py
       - name: Run appcache_manifest_generator.py
