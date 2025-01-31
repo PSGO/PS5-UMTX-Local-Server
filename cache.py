@@ -104,7 +104,7 @@ if args.directory_path is None:
         print("Couldn't find 'index.html' in the current directory or its subdirectories. Please provide a directory path with the -d flag.")
         exit(1)
 
-    user_input = input(f"Found 'index.html' at '{os.path.dirname(index_html_path)}'. Do you want to use this directory? (y/n): ")
+    user_input = 'y'
 
     if user_input.lower() != 'y':
         print("No directory path provided. Exiting.")
