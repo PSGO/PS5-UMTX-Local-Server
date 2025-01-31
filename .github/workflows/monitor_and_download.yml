@@ -77,7 +77,7 @@ jobs:
         if: ${{ env.skip != 'true' }}
         run: |
           cd PS5-UMTX-Jailbreak-main
-          python3 appcache_manifest_generator.py
+          python3 cache.py
 
       # Step 11: Move ps5 folder contents to target directory
       - name: Move ps5 folder contents to target directory
